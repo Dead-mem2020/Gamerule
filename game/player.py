@@ -8,8 +8,8 @@ class Player(pygame.sprite.Sprite):
 
         image_loaded = False
 
-        for name in ["gatto", "cat", "player", "kocka"]:
-            for ext in ["png", "jpg", "jpeg", "webp"]:
+        for name in ["Trump", "Trump", "Musk", "Musk"]:
+            for ext in ["png", "jpg", "png", "jpg"]:
                 try:
                     image_path = os.path.join("img", f"{name}.{ext}")
                     self.image = pygame.image.load(image_path).convert_alpha()
