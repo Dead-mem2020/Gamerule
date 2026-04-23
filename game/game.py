@@ -76,7 +76,7 @@ class Game:
     
                 
     def update(self):
-        game_over = self.player.update(self.platform)
+        game_over = self.player.update(self.platform, self.enemies)
         if game_over:
             self.running = False
 

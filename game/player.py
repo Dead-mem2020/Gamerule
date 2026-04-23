@@ -36,13 +36,12 @@ class Player(pygame.sprite.Sprite):
 
         self.on_ground = False
 
-    def update(self, platforms):
+    def update(self, platforms, enemies): # <-- Přidali jsme enemies
         keys = pygame.key.get_pressed()
         self.velocity_x = 0
 
         if keys[pygame.K_RIGHT]:
             self.velocity_x = PLAYER_SPEED
-
         if keys[pygame.K_LEFT]:
             self.velocity_x = -PLAYER_SPEED
 
@@ -54,16 +53,28 @@ class Player(pygame.sprite.Sprite):
         if self.velocity_y > 15:
             self.velocity_y = 15
 
+        # --- 1. POHYB V OSE X ---
         self.rect.x += self.velocity_x
+        
         if self.rect.left < 0:
             self.rect.left = 0
         if self.rect.right > SCREEN_WIDTH:
             self.rect.right = SCREEN_WIDTH
 
+        # Kolize s nepřáteli v ose X (Tohle tě zastaví)
+        for enemy in enemies:
+            if self.rect.colliderect(enemy.rect):
+                if self.velocity_x > 0: # Hráč jde doprava, narazí do levého boku
+                    self.rect.right = enemy.rect.left
+                elif self.velocity_x < 0: # Hráč jde doleva, narazí do pravého boku
+                    self.rect.left = enemy.rect.right
+
+        # --- 2. POHYB V OSE Y ---
         self.rect.y += self.velocity_y
 
         self.on_ground = False
 
+        # Kolize s plošinami v ose Y
         for platform in platforms:
             if self.rect.colliderect(platform.rect):
                 if self.velocity_y > 0:
@@ -73,10 +84,18 @@ class Player(pygame.sprite.Sprite):
                 elif self.velocity_y < 0:
                     self.rect.top = platform.rect.bottom
                     self.velocity_y = 0
+                    
+        # Kolize s nepřáteli v ose Y (Aby se dalo na nepříteli stát a hráč jím nepropadl)
+        for enemy in enemies:
+            if self.rect.colliderect(enemy.rect):
+                if self.velocity_y > 0:
+                    self.rect.bottom = enemy.rect.top
+                    self.velocity_y = 0
+                    self.on_ground = True
+                elif self.velocity_y < 0:
+                    self.rect.top = enemy.rect.bottom
+                    self.velocity_y = 0
 
         if self.rect.top > SCREEN_HEIGHT:
             return True
         return False
-    
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
