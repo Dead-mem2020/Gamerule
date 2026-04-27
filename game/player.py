@@ -8,8 +8,8 @@ class Player(pygame.sprite.Sprite):
 
         image_loaded = False
 
-        for name in ["Trump", "Trump", "Musk", "Musk"]:
-            for ext in ["png", "jpg", "png", "jpg"]:
+        for name in ["Trump" "Musk"]:
+            for ext in ["png", "jpg"]:
                 try:
                     image_path = os.path.join("img", f"{name}.{ext}")
                     self.image = pygame.image.load(image_path).convert_alpha()
@@ -22,6 +22,7 @@ class Player(pygame.sprite.Sprite):
                 except (pygame.error, FileNotFoundError):
                     print(f"Player nebyl nalezen {pygame.error}")
                     continue
+
 
         if not image_loaded:
             self.image = pygame.Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
@@ -36,7 +37,8 @@ class Player(pygame.sprite.Sprite):
 
         self.on_ground = False
 
-    def update(self, platforms):
+# pohyb hráče, gravitace, atd.
+    def update(self, platforms, enemies):
         keys = pygame.key.get_pressed()
         self.velocity_x = 0
 
@@ -73,6 +75,25 @@ class Player(pygame.sprite.Sprite):
                 elif self.velocity_y < 0:
                     self.rect.top = platform.rect.bottom
                     self.velocity_y = 0
+
+        
+        
+    # kolize se statickým enemy1, na ose X a Y
+        for enemy in enemies:
+            if self.rect.colliderect(enemy.rect):
+                if self.velocity_x > 0: 
+                    self.rect.right = enemy.rect.left
+                elif self.velocity_x < 0: 
+                    self.rect.left = enemy.rect.right
+                
+
+        for enemy in enemies:
+            if self.rect.colliderect(enemy.rect):
+                if self.velocity_y > 0:
+                    self.rect.bottom = enemy.rect.top
+                    self.velocity_y = 0
+                    self.on_ground = True # Vytvoří z nepřítele plošinu
+                
 
         if self.rect.top > SCREEN_HEIGHT:
             return True
