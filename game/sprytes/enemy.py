@@ -89,6 +89,7 @@ class Enemy2(BaseEnemy):
     def __init__(self, x, y):
         super().__init__(x, y, ["enemy2"], fallback_color=(100, 100, 100))
         self.velocity_x = 1
+        self.is_deadly = True
 
     def update(self, platforms, *args):
         self.rect.x += self.velocity_x
@@ -113,16 +114,19 @@ class Enemy2(BaseEnemy):
 
         self.apply_gravity(platforms)
 
+
+
 # doktor
 class Enemy3(BaseEnemy):
     def __init__(self, x, y):
-        # Modrý blok pro odlišení
         super().__init__(x, y, ["shooter", "enemy3"], fallback_color=(0, 0, 255)) 
         self.velocity_x = 1
+        self.is_deadly = True
         self.vision_range = 250 # Vzdálenost vize
         self.shoot_cooldown = 0
         self.shoot_delay = 60 # počet snímků u střely
         self.facing_right = True # pamatovák směru
+
 
     def update(self, platforms, player, projectiles_group, *args):
         # vzdálenost od hráče
@@ -175,6 +179,8 @@ class Enemy3(BaseEnemy):
 
         self.apply_gravity(platforms)
 
+
+
 # boom race
 class Enemy4(BaseEnemy):
     def __init__(self, x, y):
@@ -216,7 +222,9 @@ class Enemy4(BaseEnemy):
         # 4. ÚTOK A VYMAZÁNÍ (Zničení)
         if self.rect.colliderect(player.rect):
             print("BUM! Nepřítel explodoval a zranil hráče!")
-            # zde pak ubírání životů
+            
+            # Zraňování hráčů
+            player.take_damage()
             
             # self.kill() odstraní tento objekt ze všech pygame.sprite.Group
             self.kill() 

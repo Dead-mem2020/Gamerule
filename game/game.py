@@ -88,6 +88,11 @@ class Game:
 
         self.projectiles.update()
 
+        hits = pygame.sprite.spritecollide(self.player, self.projectiles, True)
+        if hits:
+            if self.player.take_damage():
+                self.running = False
+
         for enemy in self.enemies:
             enemy.update(self.platform, self.player, self.projectiles)
 
