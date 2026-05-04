@@ -9,21 +9,24 @@ class BaseEnemy(pygame.sprite.Sprite):
         super().__init__()
 
         image_loaded = False
+        image_dirs = ["img", os.path.join("game", "textures")]
 
         for name in image_name:
-            for ext in ["png", "jpg"]:
-                try:
-                    image_path = os.path.join("img", f"{name}.{ext}")
-                    self.image = pygame.image.load(image_path).convert_alpha()
-                    self.image = pygame.transform.scale(self.image, (ENEMY_WIDTH, ENEMY_HEIGHT))
-                    print(f"Načten obrázek nepřítele: {image_path}")
-                    image_loaded = True
+            for image_dir in image_dirs:
+                for ext in ["png", "jpg"]:
+                    try:
+                        image_path = os.path.join(image_dir, f"{name}.{ext}")
+                        self.image = pygame.image.load(image_path).convert_alpha()
+                        self.image = pygame.transform.scale(self.image, (ENEMY_WIDTH, ENEMY_HEIGHT))
+                        print(f"Načten obrázek nepřítele: {image_path}")
+                        image_loaded = True
+                        break
+                    except (pygame.error, FileNotFoundError):
+                        continue
+                if image_loaded:
                     break
-                except (pygame.error, FileNotFoundError):
-                    continue
-            
             if image_loaded:
-                break 
+                break
 
         if not image_loaded:
             print(f"Obrázek nepřítele pro {image_name} nenalezen, používám zástupnou barvu.")
