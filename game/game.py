@@ -7,27 +7,24 @@ from game.sprytes.enemy import *
 import random
 
 class Game:
-    def __init__(self, screen):
+    def __init__(self, screen, skin=0):
         self.screen = screen
         self.clock = pygame.time.Clock()
         self.running = True
         
         self.all_sprites = pygame.sprite.Group()
         self.platform = pygame.sprite.Group()
-        
-        
         self.enemies = pygame.sprite.Group()
         self.projectiles = pygame.sprite.Group()
-        
         
         floor = Platform(0, SCREEN_HEIGHT - 40, SCREEN_WIDTH, 40)
         self.platform.add(floor)
         self.all_sprites.add(floor)
 
-        self.player = Player(100, 100)
+        # předat vybraný skin do Player
+        self.player = Player(100, 100, skin)
         self.all_sprites.add(self.player)
 
-       
         self.spawn_enemies(3) 
 
    

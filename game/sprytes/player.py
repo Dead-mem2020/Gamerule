@@ -1,92 +1,73 @@
-import pygame
 import os
+import pygame
 from config import *
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, skin=0):
         super().__init__()
+        self.skin = int(skin)
+        self.width = PLAYER_WIDTH
+        self.height = PLAYER_HEIGHT
 
-        image_loaded = False
-        image_dirs = ["img", os.path.join("game", "textures", "player")]
+        # assets dir: c:\... \game\assets
+        assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
 
-        for name in ["Trump", "Musk"]:
-            for image_dir in image_dirs:
-                for ext in ["png", "jpg"]:
-                    try:
-                        image_path = os.path.join(image_dir, f"{name}.{ext}")
-                        self.image = pygame.image.load(image_path).convert_alpha()
-                        self.image = pygame.transform.scale(self.image, (PLAYER_WIDTH, PLAYER_HEIGHT))
-                        print(f"Načten obrázek hráče: {image_path}")
-                        image_loaded = True
-                        break
-                    except (pygame.error, FileNotFoundError):
-                        continue
-                if image_loaded:
-                    break
-            if image_loaded:
-                break
+        # map skin index to filename
+        skin_files = {
+            0: "Musk.png",
+            1: "Trump.png"
+        }
+        filename = skin_files.get(self.skin, skin_files[0])
+        img_path = os.path.join(assets_dir, filename)
 
-        if not image_loaded:
-            self.image = pygame.Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
-            self.image.fill(PLAYER_COLOUR)
+        try:
+            img = pygame.image.load(img_path).convert_alpha()
+            self.image = pygame.transform.scale(img, (self.width, self.height))
+        except Exception:
+            # fallback - barvy dle náhledu v menu
+            self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+            if self.skin == 0:
+                self.image.fill((0, 255, 0))  # zelený fallback
+            else:
+                self.image.fill((0, 0, 255))  # modrý fallback
 
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect = self.image.get_rect(topleft=(x, y))
 
-        self.velocity_x = 0
-        self.velocity_y = 0
-
+        # fyzika / pohyb
+        self.vx = 0
+        self.vy = 0
         self.on_ground = False
 
-# pohyb hráče, gravitace, atd.
-    def update(self, platforms, enemies):
+    def handle_input(self):
         keys = pygame.key.get_pressed()
-        self.velocity_x = 0
-
-        if keys[pygame.K_RIGHT]:
-            self.velocity_x = PLAYER_SPEED
-
-        if keys[pygame.K_LEFT]:
-            self.velocity_x = -PLAYER_SPEED
-
-        if keys[pygame.K_SPACE] and self.on_ground:
-            self.velocity_y = -JUMP_POWER
+        self.vx = 0
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            self.vx = -PLAYER_SPEED
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            self.vx = PLAYER_SPEED
+        if (keys[pygame.K_w] or keys[pygame.K_UP] or keys[pygame.K_SPACE]) and self.on_ground:
+            self.vy = -JUMP_POWER
             self.on_ground = False
 
-        self.velocity_y += GRAVITY
-        if self.velocity_y > 15:
-            self.velocity_y = 15
-
-        self.rect.x += self.velocity_x
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > SCREEN_WIDTH:
-            self.rect.right = SCREEN_WIDTH
-
-        self.rect.y += self.velocity_y
+    def update(self, platforms_group, enemies_group=None):
+        self.handle_input()
+        self.rect.x += self.vx
+        self.vy += GRAVITY
+        self.rect.y += int(self.vy)
 
         self.on_ground = False
-
-        for platform in platforms:
-            if self.rect.colliderect(platform.rect):
-                if self.velocity_y > 0:
-                    self.rect.bottom = platform.rect.top
-                    self.velocity_y = 0
+        for plat in platforms_group:
+            if self.rect.colliderect(plat.rect):
+                if self.vy >= 0 and self.rect.bottom <= plat.rect.bottom:
+                    self.rect.bottom = plat.rect.top
+                    self.vy = 0
                     self.on_ground = True
-                elif self.velocity_y < 0:
-                    self.rect.top = platform.rect.bottom
-                    self.velocity_y = 0
 
-        
-        
-    # kolize se statickým enemy1, na ose X a Y
-        if pygame.sprite.spritecollideany(self, enemies):
-            return True
+        if enemies_group is not None:
+            if pygame.sprite.spritecollideany(self, enemies_group):
+                return True
 
-        if self.rect.top > SCREEN_HEIGHT:
-            return True
         return False
-    
+
     def draw(self, screen):
         screen.blit(self.image, self.rect)
