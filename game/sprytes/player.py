@@ -10,12 +10,12 @@ class Player(pygame.sprite.Sprite):
         self.height = PLAYER_HEIGHT
 
         # assets dir: c:\... \game\assets
-        assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
+        assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "textures", "assets")
 
         # map skin index to filename
         skin_files = {
-            0: "Musk.png",
-            1: "Trump.png"
+            0: "Trump.png",
+            1: "Musk.png"
         }
         filename = skin_files.get(self.skin, skin_files[0])
         img_path = os.path.join(assets_dir, filename)
@@ -27,9 +27,9 @@ class Player(pygame.sprite.Sprite):
             # fallback - barvy dle náhledu v menu
             self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
             if self.skin == 0:
-                self.image.fill((0, 255, 0))  # zelený fallback
+                self.image.fill((200, 50, 50))  # červený fallback pro Trump
             else:
-                self.image.fill((0, 0, 255))  # modrý fallback
+                self.image.fill((50, 100, 200))  # modrý fallback pro Elon
 
         self.rect = self.image.get_rect(topleft=(x, y))
 
