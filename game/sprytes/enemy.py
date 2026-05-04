@@ -9,7 +9,7 @@ class BaseEnemy(pygame.sprite.Sprite):
         super().__init__()
 
         image_loaded = False
-        image_dirs = ["img", os.path.join("game", "textures")]
+        image_dirs = ["img", os.path.join("game", "textures", "enemies")]
 
         for name in image_name:
             for image_dir in image_dirs:

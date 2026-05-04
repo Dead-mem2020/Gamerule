@@ -7,7 +7,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         image_loaded = False
-        image_dirs = ["img", os.path.join("game", "textures")]
+        image_dirs = ["img", os.path.join("game", "textures", "player")]
 
         for name in ["Trump", "Musk"]:
             for image_dir in image_dirs:
