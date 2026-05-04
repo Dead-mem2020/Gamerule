@@ -17,6 +17,7 @@ class Game:
         
         
         self.enemies = pygame.sprite.Group()
+        self.projectiles = pygame.sprite.Group()
         
         
         floor = Platform(0, SCREEN_HEIGHT - 40, SCREEN_WIDTH, 40)
@@ -56,6 +57,14 @@ class Game:
             self.enemies.add(new_enemy2)
             self.all_sprites.add(new_enemy2)
 
+            new_enemy3 = Enemy3(spawn_x, spawn_y)
+            self.enemies.add(new_enemy3)
+            self.all_sprites.add(new_enemy3)
+
+            new_enemy4 = Enemy4(spawn_x, spawn_y)
+            self.enemies.add(new_enemy4)
+            self.all_sprites.add(new_enemy4)
+
 # eventy
     def handle_events(self):
         for event in pygame.event.get():
@@ -80,8 +89,10 @@ class Game:
         if game_over:
             self.running = False
 
+        self.projectiles.update()
+
         for enemy in self.enemies:
-            enemy.update(self.platform)
+            enemy.update(self.platform, self.player, self.projectiles)
 
 
     def draw(self):
@@ -89,6 +100,8 @@ class Game:
         
         for sprite in self.all_sprites:
             sprite.draw(self.screen)
+
+        self.projectiles.draw(self.screen)
 
         pygame.display.flip()
 
