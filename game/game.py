@@ -1,9 +1,9 @@
 from os import name
 import pygame
 from config import *
-from game.player import Player
+from game.sprytes.player import Player
 from game.platform import Platform
-from game.enemy import *
+from game.sprytes.enemy import *
 import random
 
 class Game:
