@@ -1,9 +1,8 @@
-from os import name
 import pygame
 from config import *
 from game.sprytes.player import Player
 from game.platform import Platform
-from game.enemy import *
+from game.sprytes.enemy import Enemy1, Enemy2
 import random
 
 class Game:
@@ -42,37 +41,23 @@ class Game:
 # spawnování nepřítele
         for _ in range(count):
             random_plat = random.choice(platforms_list)
-            
             max_x = max(random_plat.rect.left, random_plat.rect.right - ENEMY_WIDTH)
             spawn_x = random.randint(random_plat.rect.left, max_x)
-            
             spawn_y = random_plat.rect.top - ENEMY_HEIGHT
-            
-            new_enemy = Enemy1(spawn_x, spawn_y)
+
+            if random.choice([True, False]):
+                new_enemy = Enemy1(spawn_x, spawn_y)
+            else:
+                new_enemy = Enemy2(spawn_x, spawn_y)
+
             self.enemies.add(new_enemy)
             self.all_sprites.add(new_enemy)
-
-            new_enemy2 = Enemy2(spawn_x, spawn_y)
-            self.enemies.add(new_enemy2)
-            self.all_sprites.add(new_enemy2)
 
 # eventy
     def handle_events(self):
         for event in pygame.event.get():
-            evt_name = pygame.event.event_name(event.type)
-
             if event.type == pygame.QUIT:
                 self.running = False
-
-            if event.type in (pygame.KEYDOWN, pygame.KEYUP):
-                evt_name = pygame.key.name(event.key)
-                print(f"{evt_name}: {event.key}")
-
-            elif event.type == pygame.MOUSEMOTION:
-                print(f"{evt_name}: {event.pos}")
-
-            elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
-                print(f"{evt_name}: {event.button} at {event.pos}")
     
 # updatování
     def update(self):

@@ -7,22 +7,24 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         image_loaded = False
+        image_dirs = ["img", os.path.join("game", "textures")]
 
-        for name in ["Trump" "Musk"]:
-            for ext in ["png", "jpg"]:
-                try:
-                    image_path = os.path.join("img", f"{name}.{ext}")
-                    self.image = pygame.image.load(image_path).convert_alpha()
-                    self.image = pygame.transform.scale(self.image, (PLAYER_WIDTH, PLAYER_HEIGHT))
-                    print(f"Načten obrázek hráče: {image_path}")
-                    image_loaded = True
-
+        for name in ["Trump", "Musk"]:
+            for image_dir in image_dirs:
+                for ext in ["png", "jpg"]:
+                    try:
+                        image_path = os.path.join(image_dir, f"{name}.{ext}")
+                        self.image = pygame.image.load(image_path).convert_alpha()
+                        self.image = pygame.transform.scale(self.image, (PLAYER_WIDTH, PLAYER_HEIGHT))
+                        print(f"Načten obrázek hráče: {image_path}")
+                        image_loaded = True
+                        break
+                    except (pygame.error, FileNotFoundError):
+                        continue
+                if image_loaded:
                     break
-
-                except (pygame.error, FileNotFoundError):
-                    print(f"Player nebyl nalezen {pygame.error}")
-                    continue
-
+            if image_loaded:
+                break
 
         if not image_loaded:
             self.image = pygame.Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
@@ -79,21 +81,8 @@ class Player(pygame.sprite.Sprite):
         
         
     # kolize se statickým enemy1, na ose X a Y
-        for enemy in enemies:
-            if self.rect.colliderect(enemy.rect):
-                if self.velocity_x > 0: 
-                    self.rect.right = enemy.rect.left
-                elif self.velocity_x < 0: 
-                    self.rect.left = enemy.rect.right
-                
-
-        for enemy in enemies:
-            if self.rect.colliderect(enemy.rect):
-                if self.velocity_y > 0:
-                    self.rect.bottom = enemy.rect.top
-                    self.velocity_y = 0
-                    self.on_ground = True # Vytvoří z nepřítele plošinu
-                
+        if pygame.sprite.spritecollideany(self, enemies):
+            return True
 
         if self.rect.top > SCREEN_HEIGHT:
             return True
