@@ -10,7 +10,7 @@ class Player(pygame.sprite.Sprite):
         self.height = PLAYER_HEIGHT
 
         # assets dir: c:\... \game\assets
-        assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
+        assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "textures", "players")
 
         # map skin index to filename
         skin_files = {

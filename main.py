@@ -17,6 +17,13 @@ def main():
     game = Game(screen, chosen_skin)
     game.run()
 
+    if game.won:
+        font = pygame.font.SysFont(None, 48)
+        text = font.render("You Won! Washington Saved!", True, (0, 255, 0))
+        screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2 - text.get_height()//2))
+        pygame.display.flip()
+        pygame.time.wait(3000)
+
     pygame.quit()
 
 if __name__ == "__main__":
