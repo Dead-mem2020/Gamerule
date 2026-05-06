@@ -16,6 +16,11 @@ class Game:
         self.platform = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
         self.projectiles = pygame.sprite.Group()
+
+        self.viruses = pygame.sprite.Group()
+        
+        # Časovač pro spawnování virů (začne na náhodném čísle např. mezi 2 a 5 vteřinami)
+        self.virus_spawn_timer = random.randint(4 * FPS, 10 * FPS)
         
         floor = Platform(0, SCREEN_HEIGHT - 40, SCREEN_WIDTH, 40)
         self.platform.add(floor)
@@ -77,7 +82,18 @@ class Game:
             elif event.type == pygame.MOUSEMOTION:
                 print(f"{evt_name}: {event.pos}")
 
-            elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
+            # SPOJENÁ KONTROLA KLIKNUTÍ:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                print(f"{evt_name}: {event.button} at {event.pos}")
+                if event.button == 1:  # Lmb
+                    for virus in self.viruses:
+                        # Uložíme si, co nám virus po kliknutí odpověděl
+                        result = virus.handle_click(event.pos)
+                        if result == "game_over":
+                            print("Vypustil jsi virus! INSTANT GAME OVER!")
+                            self.running = False
+
+            elif event.type == pygame.MOUSEBUTTONUP:
                 print(f"{evt_name}: {event.button} at {event.pos}")
     
 # updatování
@@ -95,6 +111,16 @@ class Game:
 
         for enemy in self.enemies:
             enemy.update(self.platform, self.player, self.projectiles)
+
+        self.viruses.update(self.player)
+
+        # Časovač pro vytvoření nového viru
+        self.virus_spawn_timer -= 1
+        if self.virus_spawn_timer <= 0:
+            new_virus = Virus()
+            self.viruses.add(new_virus)
+            self.all_sprites.add(new_virus)
+            self.virus_spawn_timer = random.randint(3 * FPS, 10 * FPS)
 
 
     def draw(self):
