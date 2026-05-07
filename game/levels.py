@@ -70,6 +70,13 @@ class Level:
             house_top = Platform(350, 300, 100, 20)
             self.platforms.add(house_top)
             self.all_sprites.add(house_top)
+            # Extra jumping platforms for level progression
+            mid_platform = Platform(520, 320, 120, 20)
+            self.platforms.add(mid_platform)
+            self.all_sprites.add(mid_platform)
+            upper_platform = Platform(650, 240, 100, 20)
+            self.platforms.add(upper_platform)
+            self.all_sprites.add(upper_platform)
             # Enemies
             enemy3 = Enemy3(400, 360)
             self.enemies.add(enemy3)
