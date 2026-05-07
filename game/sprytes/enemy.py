@@ -3,26 +3,25 @@ import os
 from config import *
 
 
-
 class BaseEnemy(pygame.sprite.Sprite):
     def __init__(self, x, y, image_name, fallback_color=ENEMY_COLOUR):
         super().__init__()
 
         image_loaded = False
-        image_dirs = ["img", os.path.join("game", "textures", "enemies")]
+        assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "textures", "enemies")
 
         for name in image_name:
-            for image_dir in image_dirs:
-                for ext in ["png", "jpg"]:
-                    try:
-                        image_path = os.path.join(image_dir, f"{name}.{ext}")
-                        self.image = pygame.image.load(image_path).convert_alpha()
-                        self.image = pygame.transform.scale(self.image, (ENEMY_WIDTH, ENEMY_HEIGHT))
-                        print(f"Načten obrázek nepřítele: {image_path}")
-                        image_loaded = True
-                        break
-                    except (pygame.error, FileNotFoundError):
-                        continue
+            for root, _, files in os.walk(assets_dir):
+                for ext in ["png", "jpg", "jpeg"]:
+                    candidate = os.path.join(root, f"{name}.{ext}")
+                    if os.path.isfile(candidate):
+                        try:
+                            self.image = pygame.image.load(candidate).convert_alpha()
+                            self.image = pygame.transform.scale(self.image, (ENEMY_WIDTH, ENEMY_HEIGHT))
+                            image_loaded = True
+                            break
+                        except (pygame.error, FileNotFoundError):
+                            continue
                 if image_loaded:
                     break
             if image_loaded:
@@ -78,7 +77,7 @@ class Projectile(pygame.sprite.Sprite):
 # protestující
 class Enemy1(BaseEnemy):
     def __init__(self, x, y):
-        super().__init__(x, y, ["enemy1"], fallback_color=(200, 200, 200))
+        super().__init__(x, y, ["protestor"], fallback_color=(200, 200, 200))
 
     def update(self, platforms, *args):
         self.apply_gravity(platforms)
@@ -87,7 +86,7 @@ class Enemy1(BaseEnemy):
 # liberal
 class Enemy2(BaseEnemy):
     def __init__(self, x, y):
-        super().__init__(x, y, ["enemy2"], fallback_color=(100, 100, 100))
+        super().__init__(x, y, ["muslim"], fallback_color=(100, 100, 100))
         self.velocity_x = 1
 
     def update(self, platforms, *args):
@@ -116,8 +115,7 @@ class Enemy2(BaseEnemy):
 # doktor
 class Enemy3(BaseEnemy):
     def __init__(self, x, y):
-        # Modrý blok pro odlišení
-        super().__init__(x, y, ["shooter", "enemy3"], fallback_color=(0, 0, 255)) 
+        super().__init__(x, y, ["doktor"], fallback_color=(0, 0, 255))
         self.velocity_x = 1
         self.vision_range = 250 # Vzdálenost vize
         self.shoot_cooldown = 0
@@ -178,7 +176,7 @@ class Enemy3(BaseEnemy):
 # boom race
 class Enemy4(BaseEnemy):
     def __init__(self, x, y):
-        super().__init__(x, y, ["chaser", "enemy4"], fallback_color=(255, 140, 0))
+        super().__init__(x, y, ["virus_yellow", "virus_red", "virus"], fallback_color=(255, 140, 0))
         self.speed = 3 
         self.vision_range = 300 # Vzdálenost spatření
         self.is_chasing = False # Defaultně není v režimu stíhání

@@ -9,13 +9,11 @@ class Player(pygame.sprite.Sprite):
         self.width = PLAYER_WIDTH
         self.height = PLAYER_HEIGHT
 
-        # assets dir: c:\... \game\assets
-        assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "textures", "players")
+        assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "textures", "player")
 
-        # map skin index to filename
         skin_files = {
-            0: "Musk.png",
-            1: "Trump.png"
+            0: "Trump.png",
+            1: "Musk.png"
         }
         filename = skin_files.get(self.skin, skin_files[0])
         img_path = os.path.join(assets_dir, filename)
@@ -23,13 +21,13 @@ class Player(pygame.sprite.Sprite):
         try:
             img = pygame.image.load(img_path).convert_alpha()
             self.image = pygame.transform.scale(img, (self.width, self.height))
-        except Exception:
-            # fallback - barvy dle náhledu v menu
+        except Exception as e:
+            print(f"Chyba načtení hráčova skinu: {img_path} -> {e}")
             self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
             if self.skin == 0:
-                self.image.fill((0, 255, 0))  # zelený fallback
+                self.image.fill((0, 255, 0))
             else:
-                self.image.fill((0, 0, 255))  # modrý fallback
+                self.image.fill((0, 0, 255))
 
         self.rect = self.image.get_rect(topleft=(x, y))
 
