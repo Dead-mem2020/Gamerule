@@ -8,21 +8,22 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("American day")
 
-    menu = Menu(screen)
-    start, chosen_skin = menu.run()
-    if not start:
-        pygame.quit()
-        return
+    while True:
+        menu = Menu(screen)
+        start, chosen_skin = menu.run()
+        if not start:
+            break
 
-    game = Game(screen, chosen_skin)
-    game.run()
+        game = Game(screen, chosen_skin)
+        game.run()
 
-    if game.won:
-        font = pygame.font.SysFont(None, 48)
-        text = font.render("You Won! Washington Saved!", True, (0, 255, 0))
-        screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2 - text.get_height()//2))
-        pygame.display.flip()
-        pygame.time.wait(3000)
+        if game.won:
+            font = pygame.font.SysFont(None, 48)
+            text = font.render("You Won! Washington Saved!", True, (0, 255, 0))
+            screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2 - text.get_height()//2))
+            pygame.display.flip()
+            pygame.time.wait(3000)
+            break
 
     pygame.quit()
 
