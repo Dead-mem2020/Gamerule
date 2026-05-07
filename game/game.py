@@ -34,6 +34,7 @@ class Game:
     
 # updatování
     def update(self):
+        self.level.platforms.update()
         game_over = self.player.update(self.level.platforms, self.level.enemies)
         if game_over:
             self.running = False
