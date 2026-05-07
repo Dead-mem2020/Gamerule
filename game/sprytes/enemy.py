@@ -1,6 +1,8 @@
 import pygame
+import pygame.font
 import os
 from config import *
+import random
 
 
 class BaseEnemy(pygame.sprite.Sprite):
@@ -88,6 +90,7 @@ class Enemy2(BaseEnemy):
     def __init__(self, x, y):
         super().__init__(x, y, ["muslim"], fallback_color=(100, 100, 100))
         self.velocity_x = 1
+        self.is_deadly = True
 
     def update(self, platforms, *args):
         self.rect.x += self.velocity_x
@@ -112,15 +115,19 @@ class Enemy2(BaseEnemy):
 
         self.apply_gravity(platforms)
 
+
+
 # doktor
 class Enemy3(BaseEnemy):
     def __init__(self, x, y):
         super().__init__(x, y, ["doktor"], fallback_color=(0, 0, 255))
         self.velocity_x = 1
+        self.is_deadly = True
         self.vision_range = 250 # Vzdálenost vize
         self.shoot_cooldown = 0
         self.shoot_delay = 60 # počet snímků u střely
         self.facing_right = True # pamatovák směru
+
 
     def update(self, platforms, player, projectiles_group, *args):
         # vzdálenost od hráče
@@ -173,6 +180,8 @@ class Enemy3(BaseEnemy):
 
         self.apply_gravity(platforms)
 
+
+
 # boom race
 class Enemy4(BaseEnemy):
     def __init__(self, x, y):
@@ -214,9 +223,93 @@ class Enemy4(BaseEnemy):
         # 4. ÚTOK A VYMAZÁNÍ (Zničení)
         if self.rect.colliderect(player.rect):
             print("BUM! Nepřítel explodoval a zranil hráče!")
-            # zde pak ubírání životů
+            
+            # Zraňování hráčů
+            player.take_damage()
             
             # self.kill() odstraní tento objekt ze všech pygame.sprite.Group
             self.kill() 
 
         self.apply_gravity(platforms)
+
+
+# virus
+class Virus(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        
+        # --- 1. VELIKOST 40% OBRAZOVKY ---
+        self.v_width = int(SCREEN_WIDTH * 0.4)
+        self.v_height = int(SCREEN_HEIGHT * 0.4)
+        
+        # Příprava fontu pro tlačítka
+        pygame.font.init()
+        self.font = pygame.font.SysFont('arial', 28, bold=True)
+        if self.font is None:
+            self.font = pygame.font.Font(None, 28)
+
+        # Načítání POUZE ŽLUTÉHO viru
+        def load_virus_img(filename, fallback_color):
+            try:
+                path = os.path.join("textures", "enemies", "virus", filename)
+                if not os.path.exists(path):
+                    path = os.path.join("game", "textures", "enemies", "virus", filename)
+                
+                img = pygame.image.load(path).convert_alpha()
+                return pygame.transform.scale(img, (self.v_width, self.v_height))
+            except Exception:
+                surf = pygame.Surface((self.v_width, self.v_height))
+                surf.fill(fallback_color)
+                return surf
+
+        # Tady už se načítá čistě jen žlutý obrázek
+        self.image_active = load_virus_img("virus_yellow.png", (200, 200, 0))
+        self.image_destroyed = load_virus_img("virus_solved.png", (100, 100, 100))
+        self.image = self.image_active
+        
+        # --- 2. POZICE VIRU A TLAČÍTEK ---
+        spawn_x = random.randint(0, SCREEN_WIDTH - self.v_width)
+        spawn_y = random.randint(0, SCREEN_HEIGHT - self.v_height)
+        self.rect = self.image.get_rect(topleft=(spawn_x, spawn_y))
+
+        btn_width = (self.v_width // 2) - 20
+        btn_height = 40
+        
+        self.btn_solve_rect = pygame.Rect(self.rect.left + 10, self.rect.bottom - btn_height - 10, btn_width, btn_height)
+        self.btn_release_rect = pygame.Rect(self.rect.right - btn_width - 10, self.rect.bottom - btn_height - 10, btn_width, btn_height)
+
+        self.state = "active"
+        self.death_timer = 15 # Jak dlouho zůstane šedý po odkliknutí
+
+    def update(self, player, *args):
+        # ŽÁDNÝ ČASOVÝ LIMIT! Virus tu bude strašit tak dlouho, dokud ho neodklikneš.
+        if self.state == "destroyed":
+            self.death_timer -= 1
+            if self.death_timer <= 0:
+                self.kill()
+
+    def handle_click(self, mouse_pos):
+        if self.state == "active":
+            if self.btn_solve_rect.collidepoint(mouse_pos):
+                self.state = "destroyed"
+                self.image = self.image_destroyed
+                return "solved"
+            elif self.btn_release_rect.collidepoint(mouse_pos):
+                return "game_over" # Past!
+        return None
+
+    def draw(self, screen):
+        # 1. Vykreslí hlavní obrázek viru
+        screen.blit(self.image, self.rect)
+        
+        if self.state == "active":
+            # 2. Vykreslí obdélníky pro tlačítka (Zelený a Temně červený)
+            pygame.draw.rect(screen, (0, 200, 0), self.btn_solve_rect)
+            pygame.draw.rect(screen, (50, 0, 0), self.btn_release_rect)
+            
+            # 3. Vygeneruje a vycentruje bílý text do tlačítek
+            text_s = self.font.render("ODSTRANIT", True, (255, 255, 255))
+            text_r = self.font.render("VYPUSTIT", True, (255, 255, 255))
+            
+            screen.blit(text_s, text_s.get_rect(center=self.btn_solve_rect.center))
+            screen.blit(text_r, text_r.get_rect(center=self.btn_release_rect.center))
