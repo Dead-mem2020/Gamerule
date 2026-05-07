@@ -90,7 +90,7 @@ class Game:
                         # Uložíme si, co nám virus po kliknutí odpověděl
                         result = virus.handle_click(event.pos)
                         if result == "game_over":
-                            print("Vypustil jsi virus! INSTANT GAME OVER!")
+                            print("Vypustil jsi virus! Game over!")
                             self.running = False
 
             elif event.type == pygame.MOUSEBUTTONUP:
@@ -113,6 +113,7 @@ class Game:
             enemy.update(self.platform, self.player, self.projectiles)
 
         self.viruses.update(self.player)
+
 
         # Časovač pro vytvoření nového viru
         self.virus_spawn_timer -= 1
