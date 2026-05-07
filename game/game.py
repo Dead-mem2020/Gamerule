@@ -1,7 +1,10 @@
 import pygame
 from config import *
 from game.sprytes.player import Player
+from game.sprytes.enemy import *
 from game.levels import Level
+from game.platform import *
+import random
 
 class Game:
     def __init__(self, screen, skin=0):
@@ -44,6 +47,8 @@ class Game:
 # eventy
     def handle_events(self):
         for event in pygame.event.get():
+            evt_name = pygame.event.event_name(event.type)
+
             if event.type == pygame.QUIT:
                 self.running = False
 
@@ -85,13 +90,11 @@ class Game:
                 return
             self.load_level(self.current_level_num)
 
-        hits = pygame.sprite.spritecollide(self.player, self.projectiles, True)
+        hits = pygame.sprite.spritecollide(self.player, self.level.projectiles, True)
         if hits:
             if self.player.take_damage():
                 self.running = False
 
-        for enemy in self.enemies:
-            enemy.update(self.platform, self.player, self.projectiles)
 
         self.viruses.update(self.player)
 
@@ -114,7 +117,11 @@ class Game:
 
         self.level.projectiles.draw(self.screen)
 
+        self.viruses.draw(self.screen)
+
         pygame.display.flip()
+
+        
 
     def run(self):
         while self.running:
